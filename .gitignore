@@ -5,6 +5,7 @@ package-lock.json
 # 构建 / 临时产物
 build/
 out/
+*.bak
 *.o
 *.a
 *.so
