@@ -797,6 +797,19 @@ _MSBuildOnly(_compile, "MultiProcessorCompilation", _boolean)  # /MP
 _MSBuildOnly(_compile, "PreprocessOutputPath", _string)  # /Fi
 _MSBuildOnly(_compile, "ProcessorNumber", _integer)  # the number of processors
 _MSBuildOnly(_compile, "TrackerLogDirectory", _folder_name)
+_MSBuildOnly(
+    _compile,
+    "ExternalWarningLevel",
+    _Enumeration(
+        [
+            "TurnOffAllWarnings",  # /external:W0
+            "Level1",  # /external:W1
+            "Level2",  # /external:W2
+            "Level3",  # /external:W3
+            "Level4",  # /external:W4
+        ]
+    ),
+)  # /external:W
 _MSBuildOnly(_compile, "TreatSpecificWarningsAsErrors", _string_list)  # /we
 _MSBuildOnly(_compile, "UseUnicodeForAssemblerListing", _boolean)  # /FAu
 

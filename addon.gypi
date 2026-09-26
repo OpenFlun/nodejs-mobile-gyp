@@ -146,6 +146,18 @@
         ],
       }],
       [ 'OS=="win"', {
+        'msvs_settings': {
+          'VCCLCompilerTool': {
+            # /external:anglebrackets：把 <...> 引用的 Node / V8 头视为外部头，
+            # 只对它们抑制警告；下游自己代码（#include "..."）不受影响。
+            # 警告级别用 ExternalWarningLevel 属性设置，而不是命令行 /external:W0，
+            # 避免与 MSBuild 默认的 /external:W3 冲突而产生 D9025。
+            'AdditionalOptions': [
+              '/external:anglebrackets'
+            ],
+            'ExternalWarningLevel': 'TurnOffAllWarnings'
+          }
+        },
         'conditions': [
           ['node_engine=="chakracore"', {
             'library_dirs': [ '<(node_root_dir)/$(ConfigurationName)' ],
@@ -154,7 +166,7 @@
           ['node_with_ltcg=="true"', {
             'msvs_settings': {
               'VCCLCompilerTool': {
-                'WholeProgramOptimization': 'true' # /GL, whole program optimization, needed for LTCG
+                'WholeProgramOptimization': 'true', # /GL, whole program optimization, needed for LTCG
               },
               'VCLibrarianTool': {
                 'AdditionalOptions': [

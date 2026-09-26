@@ -14,7 +14,9 @@
   "version": "1.0.1",
   "installVersion": 11,
   "author": "flun <open@flun.top>",
-  "bin": "./bin/node-gyp.js",
+  "bin": {
+    "nodejs-mobile-gyp": "./bin/node-gyp.js"
+  },
   "main": "./lib/node-gyp.js",
   "files": [
     "bin/",
@@ -52,7 +54,7 @@
     "node": true
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
   },
   "homepage": "https://github.com/OpenFlun/nodejs-mobile-gyp",
   "repository": {

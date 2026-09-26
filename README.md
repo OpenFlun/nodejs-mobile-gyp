@@ -61,7 +61,7 @@
 │   └── win_delay_load_hook.cc    # Windows 加载延迟钩子（编译进每个原生模块）
 │
 ├── addon.gypi                    # 所有原生模块共用的 gyp 配置
-├── package.json                  # type: module，bin 指向 bin/node-gyp.js
+├── package.json                  # type: module，bin 命令名为 nodejs-mobile-gyp
 ├── LICENSE                       # 本包许可证（ISC）
 ├── README.md                     # 本文件
 ├── CHANGELOG.md                  # 版本变更记录
@@ -111,6 +111,13 @@
 | `lib/configure.js`          | 调用 gyp 时追加 `-Gmsvs_toolset=v145`，显式指定 VS2026 工具集                                                                                                        |
 | `lib/find-visualstudio.js`  | 支持 VS2026（版本号 18，`versionYear=2026`，toolset `v145`）                                                                                                         |
 
+### 兼容性与健壮性修复
+
+- **`proc-log` 新版本兼容**：新版 `proc-log` 的日志级别函数与 `pause` / `resume` 挂在默认导出的 `log` 对象下，而非包顶层。本 fork 已按此调整 `lib/log.js`，否则在 `configure` 阶段会直接抛出 `TypeError`。
+- **弃用 API 清理**：`lib/process-release.js` 不再使用 `url.resolve()` / `url.parse()`，改用 WHATWG `URL`，消除新版 Node 的 `DEP0169` 弃用警告。
+- **外部头文件警告抑制**：Windows 下，Node 官方 V8 头文件会触发 `warning C4018` 等噪音。本 fork 通过 `ExternalWarningLevel` 属性 + `/external:anglebrackets`，只对 `#include <...>` 引入的 Node / V8 头文件静音，**不影响下游自己代码的警告**；同时避免与 MSBuild 默认设置冲突而产生的命令行警告。
+- **依赖脚本放行**：针对新版 npm 默认禁止依赖执行安装脚本的行为，`package.json` 显式声明 `allowScripts`，保证安装脚本正常执行。
+
 ### 迁移踩过的坑
 
 1. **`graceful-fs` 是 CJS，命名导入会失败**
@@ -142,12 +149,14 @@ npm install @flun/nodejs-mobile-gyp
 
 通常你不需要手动安装本包——它由 [`@flun/nodejs-mobile-react-native`](https://www.npmjs.com/package/@flun/nodejs-mobile-react-native) 在编译原生模块时自动调用。
 
+> **Node 版本要求**：本 fork 的依赖链（`make-fetch-happen`、`nopt`、`proc-log`、`which` 等）已升级到较新版本，要求比原版 `nodejs-mobile-gyp` 更高的 Node。具体最低版本见 `package.json` 的 `engines.node` 字段。若你的项目仍在使用较旧的 Node，请改用原版 `nodejs-mobile-gyp`。
+
 ## 使用
 
 ### 命令行
 
 ```bash
-npx node-gyp <command> [options]
+npx @flun/nodejs-mobile-gyp <command> [options]
 ```
 
 或在 `package.json` 的 `scripts` 中调用：
@@ -155,20 +164,14 @@ npx node-gyp <command> [options]
 ```json
 {
   "scripts": {
-    "build-addon": "node-gyp rebuild"
+    "build-addon": "nodejs-mobile-gyp rebuild"
   }
 }
 ```
 
 ### 从 Node.js 代码调用
 
-```js
-import createGyp from '@flun/nodejs-mobile-gyp'
-
-const gyp = createGyp()
-gyp.parseArgv(process.argv)
-// gyp.todo 是待执行的命令队列
-```
+本包主要作为 CLI 工具使用，推荐通过 spawn / execFile 调用其命令行入口。包本身也导出了 Gyp 类，但属于内部实现，接口可能随版本变化，不建议直接在代码中依赖。
 
 ## 命令
 
@@ -187,6 +190,7 @@ gyp.parseArgv(process.argv)
 
 | 选项                              | 说明                                               |
 | --------------------------------- | -------------------------------------------------- |
+| `-v`, `--version`                 | 打印本包版本号                                     |
 | `-j n`, `--jobs n`                | 并行运行 `make`；`max` 表示使用所有 CPU 核心       |
 | `--target=v6.2.1`                 | 目标 Node.js 版本（默认 `process.version`）        |
 | `--silly`, `--loglevel=silly`     | 输出全部进度日志                                   |
@@ -237,7 +241,7 @@ set npm_config_devdir=c:\temp\.gyp
 npm config set [--global] devdir /tmp/.gyp
 ```
 
-**注意**：通过 `npm config` 设置的配置，只在 `node-gyp` **由 npm 调用时**生效，直接运行 `node-gyp` 不生效。
+**注意**：通过 `npm config` 设置的配置，只在本包 **由 npm 调用时**生效，直接运行 `nodejs-mobile-gyp` 不生效。
 
 ## 上游参考
 

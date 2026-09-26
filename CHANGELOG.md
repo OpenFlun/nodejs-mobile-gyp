@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.0.2] - 2026-09-26
+
+### 修复
+
+- **lib/log.js**：新版 `proc-log` 的日志级别函数与 `pause` / `resume` 挂在默认导出的 `log` 对象下，而非包顶层。之前误用 `procLog.pause()` 等写法，导致 `configure` 阶段直接抛出 `TypeError`，全流程无法启动。
+- **lib/process-release.js**：弃用 `url.resolve()` / `url.parse()`，改用 WHATWG `URL`，消除新版 Node 的 `DEP0169` 弃用警告。
+- **Windows 外部头警告抑制**：Node 官方 V8 头文件会触发 `warning C4018` 等噪音。现在在 gyp 中注册 `ExternalWarningLevel` 属性，并在 `addon.gypi` 中使用 `/external:anglebrackets` + `ExternalWarningLevel: TurnOffAllWarnings`。只对 `#include <...>` 的外部头（Node / V8）静音，不影响下游自己代码的警告；且通过 MSBuild 属性而非命令行 `/external:W0`，避免与默认的 `/external:W3` 冲突产生 `D9025`。
+
+### 变更
+
+- **package.json**
+  - `bin` 改为对象形式 `{ "nodejs-mobile-gyp": "./bin/node-gyp.js" }`，与上游命令名保持一致，避免与 `node-gyp` 包混淆。
+  - `engines.node` 提升到匹配依赖链（`make-fetch-happen`、`nopt`、`proc-log`、`which` 等）的最低版本要求。
+- **README.md**：CLI 调用命令修正为 `npx @flun/nodejs-mobile-gyp`；补充 Node 版本要求；移除对内部 `Gyp` API 的示例承诺。
+
+### 验证
+
+- 在 Windows + VS2026 BuildTools + Python 3.14 + Node 26.8.1 环境下，`configure` + `build` 全流程通过，0 warning / 0 error。
+- 生成的 `.node` 可被 Node 正常 `require()` 加载并调用。
+
 ## [1.0.1] - 2026-09-21
 
 ### 首发
@@ -25,7 +45,7 @@
 
 ### 依赖升级
 
-- `tar`: `^6.1.2` → `^7.5.21`
+- `tar`: `^6.1.2` → `^7.5.22`
 - `glob`: `^10.3.10` → `^13.0.6`
 - `make-fetch-happen`: `^13.0.0` → `^16.0.1`
 - 连带消除 `inflight`、`rimraf@3`、旧版 `glob` 等停更依赖
