@@ -24,6 +24,7 @@
 
 import os
 import re
+import sys
 import subprocess
 import gyp
 import gyp.common
@@ -410,6 +411,7 @@ unreplace_spaces = $(subst """
     + SPACE_REPLACEMENT
     + """,$(space),$1)
 dirx = $(call unreplace_spaces,$(dir $(call replace_spaces,$1)))
+slashpath = $(subst \\,/,$(1))
 
 # Flags to make gcc output dependency info.  Note that you need to be
 # careful here to use the flags that ccache and distcc can understand.
@@ -547,7 +549,7 @@ endef
 define do_cmd
 $(if $(or $(command_changed),$(prereq_changed)),
   @$(call exact_echo,  $($(quiet)cmd_$(1)))
-  @mkdir -p "$(call dirx,$@)" "$(dir $(depfile))"
+  @mkdir -p "$(call slashpath,$(call dirx,$@))" "$(call slashpath,$(dir $(depfile)))"
   $(if $(findstring flock,$(word %(flock_index)d,$(cmd_$1))),
     @$(cmd_$(1))
     @echo "  $(quiet_cmd_$(1)): Finished",
@@ -2318,7 +2320,9 @@ $(obj).$(TOOLSET)/$(TARGET)/%%.o: $(obj)/%%%s FORCE_DO_CMD
             # path too aggressively if it features '..'. However it's still
             # important to strip trailing slashes.
             return path.rstrip("/")
-        return os.path.normpath(os.path.join(self.path, path))
+        # Makefile 要求 POSIX 路径；Windows 上 normpath 会把 "/" 变成 "\"，
+        # 导致编译产物路径（.o / .d.raw）带反斜杠，sh 与 sed 解析失败。
+        return os.path.normpath(os.path.join(self.path, path)).replace(os.sep, "/")
 
     def ExpandInputRoot(self, template, expansion, dirname):
         if "%(INPUT_ROOT)s" not in template and "%(INPUT_DIRNAME)s" not in template:
@@ -2361,6 +2365,17 @@ def WriteAutoRegenerationRule(params, root_makefile, makefile_name, build_files)
     if not gyp_binary.startswith(os.sep):
         gyp_binary = os.path.join(".", gyp_binary)
 
+    # Windows 下 GNU make（NDK 自带）对深层相对路径的解析有缺陷，会把
+    # 形如 $(srcdir)/../../.. 的外部 gypi 判为 "No rule to make target"。
+    # 这里跳过所有来自 node_modules 的依赖——它们是只读的外部 gypi，
+    # 内容不会在编译过程中变化；如确需重新生成 Makefile，重跑 configure 即可。
+    # 本地的 binding.gyp 与 build/config.gypi 仍会保留，足以触发自动重新生成。
+    deps_list = []
+    for bf in build_files:
+        if sys.platform == "win32" and "node_modules" in bf.replace("\\", "/"):
+            continue
+        deps_list.append(SourceifyAndQuoteSpaces(bf))
+
     root_makefile.write(
         "quiet_cmd_regen_makefile = ACTION Regenerating $@\n"
         "cmd_regen_makefile = cd $(srcdir); %(cmd)s\n"
@@ -2368,7 +2383,7 @@ def WriteAutoRegenerationRule(params, root_makefile, makefile_name, build_files)
         "\t$(call do_cmd,regen_makefile)\n\n"
         % {
             "makefile_name": makefile_name,
-            "deps": " ".join(SourceifyAndQuoteSpaces(bf) for bf in build_files),
+            "deps": " ".join(deps_list),
             "cmd": gyp.common.EncodePOSIXShellList(
                 [gyp_binary, "-fmake"] + gyp.RegenerateFlags(options) + build_files_args
             ),

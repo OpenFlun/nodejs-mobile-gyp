@@ -153,7 +153,9 @@ def RelativePath(path, relative_to, follow_path_symlink=True):
         os.path.splitdrive(path)[0].lower()
         != os.path.splitdrive(relative_to)[0].lower()
     ):
-        return path
+        # Makefile / cmake / ninja 等生成器要求 POSIX 路径，统一用正斜杠。
+        # MSBuild 也接受正斜杠，故对 msvs 无影响。
+        return path.replace(os.sep, "/")
 
     # Split the paths into components.
     path_split = path.split(os.path.sep)
@@ -173,7 +175,8 @@ def RelativePath(path, relative_to, follow_path_symlink=True):
         return ""
 
     # Turn it back into a string and we're done.
-    return os.path.join(*relative_split)
+    # Makefile / cmake / ninja 等生成器要求 POSIX 路径，统一用正斜杠。
+    return os.path.join(*relative_split).replace(os.sep, "/")
 
 
 @memoize
