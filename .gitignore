@@ -6,6 +6,7 @@ package-lock.json
 build/
 out/
 *.bak
+*.tgz
 *.o
 *.a
 *.so

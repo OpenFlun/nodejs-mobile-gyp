@@ -860,7 +860,7 @@ $(obj).$(TOOLSET)/$(TARGET)/%%.o: $(obj)/%%%s FORCE_DO_CMD
             self.output = self.ComputeMacBundleOutput(spec)
             self.output_binary = self.ComputeMacBundleBinaryOutput(spec)
         else:
-            self.output = self.output_binary = self.ComputeOutput(spec)
+            self.output = self.output_binary = self.ComputeOutput(spec).replace(os.sep, '/')
 
         self.is_standalone_static_library = bool(
             spec.get("standalone_static_library", 0)

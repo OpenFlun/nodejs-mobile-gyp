@@ -1,6 +1,18 @@
 # Changelog
 
+## [1.1.2] - 2026-09-28 21:49
+
+### 修复
+
+- **action 目标的路径分隔符**：`make.py` 中 `self.output` 由 `ComputeOutput` 产出，Windows 上带反斜杠（如 `$(obj).target\../node-addon-api\foo.stamp`），导致 `sh` 把 `\.` 当转义、目录不存在。现统一转正斜杠；非 Windows 平台为 no-op。
+
 ## [1.1.1] - 2026-09-28 09:23
+
+### 修复
+
+- **Windows 路径分隔符**：gyp 生成的 Makefile 中，`Absolutify` 与 `self.output` 产出的路径带 Windows 反斜杠（如 `src\bufferutil.o`），导致 `sh` / `sed` / `make` 解析失败。现在统一转成正斜杠；该改动在非 Windows 平台上是 no-op。
+- **`mkdir` 目标路径**：`mkdir -p "$(dir $@)"` 在 Windows 上因路径尾部反斜杠被 `sh` 当转义符，导致目录未创建、编译器无法写产物。新增 `slashpath` 辅助函数，把路径转正斜杠后再传给 `mkdir`。
+- **超长路径依赖**：Windows 下 Makefile 会因 gypi 依赖路径超过 260 字符而报 `No rule to make target`。现在过滤掉 `node_modules` 中的此类依赖——仅影响 Makefile 自动重新生成，不影响编译。
 
 ### 文档
 
@@ -67,38 +79,3 @@
 
 - 在 Windows + VS2026 BuildTools + Python 3.14 + Node 26.8.1 环境下，`configure` + `build` 全流程通过，0 warning / 0 error。
 - 生成的 `.node` 可被 Node 正常 `require()` 加载并调用。
-
-## [1.0.1] - 2026-09-21
-
-### 首发
-
-- 发布 `@flun/nodejs-mobile-gyp`，基于 [nodejs-mobile-gyp](https://github.com/janeasystems/nodejs-mobile-gyp) 0.4.0 与上游 [node-gyp](https://github.com/nodejs/node-gyp) fork
-- 用于为 nodejs-mobile 环境编译原生模块（Android / iOS）
-
-### 代码风格
-
-- 全量改造为 **ESM**（`package.json` 的 `type: "module"`）
-- 导出方式统一为文件末尾 `export { ... }`
-- 函数声明改为 `const xxx = (...) => {}`（`class` 保留）
-- 注释全部中文化
-
-### Windows 适配
-
-- 支持 **Visual Studio 2026**（版本号 18，`versionYear=2026`，toolset `v145`）
-- 强制走 **MSVC** 工具集，不再使用 ClangCL
-- 关闭 **LTO**：`enable_lto` / `enable_thin_lto` 置 `false`，`lto_jobs` 置空
-  - 避免 `MSB8020: 无法找到 ClangCL 的生成工具`
-  - 避免 `LNK1117: 选项"opt:lldltojobs=2"中的语法错误`
-- `configure` 阶段显式追加 `-Gmsvs_toolset=v145`
-
-### 依赖升级
-
-- `tar`: `^6.1.2` → `^7.5.22`
-- `glob`: `^10.3.10` → `^13.0.6`
-- `make-fetch-happen`: `^13.0.0` → `^16.0.1`
-- 连带消除 `inflight`、`rimraf@3`、旧版 `glob` 等停更依赖
-
-### 验证
-
-- Windows + VS2026 BuildTools + Python 3.14 + Node 26.8.1 环境下，`configure` + `build` 全流程通过
-- 生成的 `.node` 能被 Node 正常加载
