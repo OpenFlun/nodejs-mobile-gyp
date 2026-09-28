@@ -11,7 +11,7 @@
     "bindings",
     "gyp"
   ],
-  "version": "1.1.1",
+  "version": "1.1.2",
   "installVersion": 11,
   "author": "flun <open@flun.top>",
   "bin": {
