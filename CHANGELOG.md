@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.1.1] - 2026-09-28 09:23
+
+### 文档
+
+全面核对并修正 README，消除前后矛盾、过时表述与硬编码：
+
+- **系统要求**：
+  - iOS 构建前置工具从「Command Line Tools」修正为「**完整 Xcode**」——`xcodebuild` 必须完整 Xcode，CLT 单独不够；
+  - Visual Studio 从「仅 VS2026」放宽为「**VS2019 / VS2022 / VS2026**」——VS2017 及更早受 Node 版本上限限制，故不在支持范围；VS2026 为已验证版本；
+  - Android NDK 从「27.x」修正为「**23–27**」，与实测验证范围一致；
+  - Git for Windows 的说明从「提供 `sh.exe` / `printf` / `xargs`」扩写为「**自带整套 MSYS2 POSIX 工具集**」，避免读者低估其必要性。
+- **自动探测**：
+  - 「无需手动配置」改为「**无需手动指定路径**（前提：工具已安装）」，区分「必须安装」与「位置自动定位」；
+  - 「POSIX shell（`sh.exe`）」项改为「**Git for Windows 的 `usr/bin` 目录**（以 `sh.exe` 是否存在作为判据）」，与实际探测逻辑一致。
+- **顶部引言**：适用范围从仅官方 `nodejs-mobile` 改为「官方及兼容的社区发行版（如 OpenFlun/nodejs-mobile）」。
+- 修正若干失效链接。
+
 ## [1.1.0] - 2026-09-27 16:01
 
 ### 新增

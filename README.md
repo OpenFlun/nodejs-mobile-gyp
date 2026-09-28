@@ -2,7 +2,7 @@
 
 移动端 Node.js 原生模块（Native Addon）的交叉编译工具。
 
-用于为 [nodejs-mobile](https://github.com/nodejs-mobile/nodejs-mobile) 环境编译 C/C++ 原生模块，支持 Android 与 iOS 的交叉编译。
+用于为 nodejs-mobile 环境编译 C/C++ 原生模块，支持 Android 与 iOS 的交叉编译。适用于官方 [nodejs-mobile](https://github.com/nodejs-mobile/nodejs-mobile) 及兼容的社区发行版（如 [OpenFlun/nodejs-mobile](https://github.com/OpenFlun/nodejs-mobile)）。
 
 宿主平台支持 **Windows** / **macOS** / **Linux**，各平台所需的环境与工具见「[支持的系统与配置要求](#支持的系统与配置要求)」。
 
@@ -111,7 +111,7 @@
 
 #### 2. GNU make 的 POSIX 环境
 
-Android 原生模块通过 GNU make 构建，其 Makefile 会调用 `printf`、`xargs`、`sed` 等 Unix 命令。GNU make 需要一个 POSIX shell（`sh.exe`）来执行它们；Windows 上若无，会直接报 `CreateProcess(NULL, printf ...) failed`。本 fork 自动定位 Git for Windows 的 `usr/bin` 并前置到 PATH，详见「[支持的系统与配置要求](#支持的系统与配置要求) → 自动探测」。
+Android 原生模块通过 GNU make 构建，其 Makefile 会调用 `printf`、`xargs`、`sed` 等 Unix 命令。GNU make 需要一个 POSIX shell（`sh.exe`）来执行它们；Windows 上若无，会直接报 `CreateProcess(NULL, printf ...) failed`。Git for Windows 自带整套 POSIX 工具集；本 fork 会自动定位其 `usr/bin` 并前置到 PATH，详见「[支持的系统与配置要求](#支持的系统与配置要求) → 自动探测」。
 
 #### 3. 路径分隔符
 
@@ -121,27 +121,27 @@ gyp 生成的 Makefile 中，路径原本会带上 Windows 的反斜杠（如 `s
 
 #### 构建工具链
 
-| 文件 | 改动 |
-| --- | --- |
-| `lib/create-config-gypi.js` | 生成 `config.gypi` 时把 `clang` 置 0、`enable_lto` / `enable_thin_lto` 置 `'false'`、`lto_jobs` 置空，避免 `common.gypi` 切到 ClangCL 并向 MSVC 传 LTO 参数 |
-| `lib/configure.js` | 调用 gyp 时追加 `-Gmsvs_toolset=<探测到的 toolset>`，不再写死 `v145` |
-| `lib/find-visualstudio.js` | 支持 VS2013+，含最新 VS2026（版本号 18，`versionYear=2026`，toolset `v145`） |
-| `gyp/pylib/gyp/MSVSSettings.py` | 注册 `ExternalWarningLevel`（MSBuild 属性），供 `addon.gypi` 使用 |
-| `addon.gypi` | Windows 下追加 `/external:anglebrackets` + `ExternalWarningLevel: TurnOffAllWarnings`，只静音外部头（Node / V8）的警告 |
+| 文件                            | 改动                                                                                                                                                        |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lib/create-config-gypi.js`     | 生成 `config.gypi` 时把 `clang` 置 0、`enable_lto` / `enable_thin_lto` 置 `'false'`、`lto_jobs` 置空，避免 `common.gypi` 切到 ClangCL 并向 MSVC 传 LTO 参数 |
+| `lib/configure.js`              | 调用 gyp 时追加 `-Gmsvs_toolset=<探测到的 toolset>`，不再写死 `v145`                                                                                        |
+| `lib/find-visualstudio.js`      | 支持 VS2013+，含最新 VS2026（版本号 18，`versionYear=2026`，toolset `v145`）                                                                                |
+| `gyp/pylib/gyp/MSVSSettings.py` | 注册 `ExternalWarningLevel`（MSBuild 属性），供 `addon.gypi` 使用                                                                                           |
+| `addon.gypi`                    | Windows 下追加 `/external:anglebrackets` + `ExternalWarningLevel: TurnOffAllWarnings`，只静音外部头（Node / V8）的警告                                      |
 
 #### 跨平台路径
 
-| 文件 | 改动 |
-| --- | --- |
-| `gyp/pylib/gyp/common.py` | `RelativePath` 返回值统一转正斜杠 |
+| 文件                              | 改动                                                                                                        |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `gyp/pylib/gyp/common.py`         | `RelativePath` 返回值统一转正斜杠                                                                           |
 | `gyp/pylib/gyp/generator/make.py` | `Absolutify` 返回正斜杠；新增 `slashpath` 供 `mkdir` 使用；Windows 下跳过 `node_modules` 中的超长 gypi 依赖 |
 
 #### Windows 运行时探测
 
-| 文件 | 改动 |
-| --- | --- |
-| `lib/find-python.js` | 重写：移除硬编码版本列表，改为 `py.exe` 候选 + `py -0p` 枚举 + 目录扫描；`run()` 显式检查 `execFile` 的 err |
-| `lib/build.js` | 区分「宿主 Windows」与「Android 交叉编译」；自动探测 `sh.exe` 并前置到 PATH；为 Python 创建 `python3.cmd` shim |
+| 文件                 | 改动                                                                                                           |
+| -------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `lib/find-python.js` | 重写：移除硬编码版本列表，改为 `py.exe` 候选 + `py -0p` 枚举 + 目录扫描；`run()` 显式检查 `execFile` 的 err    |
+| `lib/build.js`       | 区分「宿主 Windows」与「Android 交叉编译」；自动探测 `sh.exe` 并前置到 PATH；为 Python 创建 `python3.cmd` shim |
 
 #### 兼容性与健壮性
 
@@ -190,8 +190,8 @@ gyp 生成的 Makefile 中，路径原本会带上 Windows 的反斜杠（如 `s
 - **Node.js**：最低版本见 `package.json` 的 `engines.node` 字段
 - **Python 3.6+**：gyp 本身是 Python 程序，构建时必需
 - **目标平台 SDK**：
-  - Android：Android NDK（已在 NDK **27.x** 上验证）
-  - iOS：Xcode Command Line Tools（仅 macOS）
+  - Android：Android NDK（**23–27 已验证**）
+  - iOS：完整 Xcode（仅 macOS；Command Line Tools 单独不够）
 
 ### Windows
 
@@ -199,11 +199,11 @@ gyp 生成的 Makefile 中，路径原本会带上 Windows 的反斜杠（如 `s
 | --------------- | --------------------------------------- | ----------------------------------------------------------- |
 | Node.js         | 见 `engines.node`                       |                                                             |
 | Python          | 3.6+                                    | 支持任意安装位置，见下方「自动探测」                        |
-| Visual Studio   | **VS2026**（版本号 18，toolset `v145`） | 需勾选「使用 C++ 的桌面开发」工作负载，含 Windows SDK       |
-| Android NDK     | 27.x（已验证）                          | 由 `@flun/nodejs-mobile-react-native` 自动定位              |
-| Git for Windows | 任意近期版本                            | 提供 make 所需的 `sh.exe` / `printf` / `xargs` 等 Unix 工具 |
+| Visual Studio   | **VS2019 / VS2022 / VS2026**（2026 已验证） | 需勾选「使用 C++ 的桌面开发」工作负载，含 Windows SDK；VS2017 及更早受 Node 版本上限限制 |
+| Android NDK     | **23–27**（已验证）                          | 由 `@flun/nodejs-mobile-react-native` 自动定位              |
+| Git for Windows | 任意近期版本                            | 自带**整套 MSYS2 POSIX 工具集**（`sh.exe`、`printf`、`xargs`、`sed`、`rm`、`mkdir` 等数十个命令），GNU make 执行 Makefile 所依赖的 Unix 命令均由它提供；位置自动探测（见下方） |
 
-> **为什么需要 Git for Windows？** Android 原生模块通过 GNU make 构建，Makefile 中会调用 `printf`、`xargs`、`sed` 等 Unix 命令。GNU make 需要一个 POSIX shell（`sh.exe`）来执行它们，而 Git for Windows 自带完整的这套工具链，无需额外安装 MSYS2 或 Cygwin。
+> **为什么需要 Git for Windows？** Android 原生模块通过 GNU make 构建，Makefile 中会调用 `printf`、`xargs`、`sed` 等 Unix 命令。这些命令并非 Windows 自带，GNU make 需要一个 POSIX 环境来执行它们。Git for Windows 自带**整套 MSYS2 POSIX 工具集**（`sh.exe`、`printf`、`xargs`、`sed`、`rm`、`mkdir` 等数十个命令），无需额外安装 MSYS2 或 Cygwin。
 
 ### macOS
 
@@ -211,8 +211,8 @@ gyp 生成的 Makefile 中，路径原本会带上 Windows 的反斜杠（如 `s
 | ----------- | -------------------------------- |
 | Node.js     | 见 `engines.node`                |
 | Python      | 3.6+                             |
-| Xcode       | 完整 Xcode 或 Command Line Tools |
-| Android NDK | 仅构建 Android 目标时需 27.x     |
+| Xcode       | 完整 Xcode（必须，CLT 单独不够） |
+| Android NDK | 仅构建 Android 目标时需 23–27     |
 
 ### Linux
 
@@ -221,11 +221,11 @@ gyp 生成的 Makefile 中，路径原本会带上 Windows 的反斜杠（如 `s
 | Node.js     | 见 `engines.node`                                      |
 | Python      | 3.6+                                                   |
 | 构建工具    | `make`、`g++`（`apt install build-essential python3`） |
-| Android NDK | 仅构建 Android 目标时需 27.x                           |
+| Android NDK | 仅构建 Android 目标时需 23–27                           |
 
 ### 自动探测（Windows）
 
-Windows 上以下路径 / 版本由本包动态探测，**无需手动配置**：
+以下工具的**安装位置**由本包动态探测，**无需手动指定路径**（前提：工具已安装）：
 
 - **Python**，依次尝试：
   1. `NODE_GYP_FORCE_PYTHON` 环境变量
@@ -236,7 +236,7 @@ Windows 上以下路径 / 版本由本包动态探测，**无需手动配置**�
   6. `python3` / `python` 命令
   7. 扫描 `%LOCALAPPDATA%\Programs\Python\Python*` 与 `%ProgramFiles%\Python*`
 
-- **POSIX shell（`sh.exe`）**，依次尝试：
+- **Git for Windows 的 `usr/bin` 目录**（POSIX 工具集所在处，以 `sh.exe` 是否存在作为判据），依次尝试：
   1. 注册表 `HKLM\SOFTWARE\GitForWindows` 的 `InstallPath`
   2. `which git` 反推 `../usr/bin`
   3. `PATH` 中的 `git.exe` 反推 `../usr/bin`
@@ -250,7 +250,7 @@ Windows 上以下路径 / 版本由本包动态探测，**无需手动配置**�
 ## 安装
 
 ```bash
-npm install @flun/nodejs-mobile-gyp
+npm i @flun/nodejs-mobile-gyp
 ```
 
 通常你不需要手动安装本包——它由 [`@flun/nodejs-mobile-react-native`](https://www.npmjs.com/package/@flun/nodejs-mobile-react-native) 在编译原生模块时自动调用。
@@ -294,32 +294,32 @@ npx @flun/nodejs-mobile-gyp <command> [options]
 
 ## 命令选项
 
-| 选项                              | 说明                                               |
-| --------------------------------- | -------------------------------------------------- |
-| `-v`, `--version`                 | 打印本包版本号                                     |
-| `-j n`, `--jobs n`                | 并行运行 `make`；`max` 表示使用所有 CPU 核心       |
-| `--target=v6.2.1`                 | 目标 Node.js 版本（默认 `process.version`）        |
-| `--silly`, `--loglevel=silly`     | 输出全部进度日志                                   |
-| `--verbose`, `--loglevel=verbose` | 输出大部分进度日志                                 |
-| `--silent`, `--loglevel=silent`   | 不输出任何日志                                     |
-| `debug`, `--debug`                | 生成 Debug 构建（默认 Release）                    |
-| `--release`, `--no-debug`         | 生成 Release 构建                                  |
-| `-C $dir`, `--directory=$dir`     | 在指定目录运行命令                                 |
-| `--make=$make`                    | 覆盖 `make` 命令（如 `gmake`）                     |
-| `--thin=yes`                      | 启用 thin 静态库                                   |
-| `--arch=$arch`                    | 目标架构（如 `ia32`）                              |
-| `--tarball=$path`                 | 从本地 tarball 获取头文件                          |
-| `--devdir=$path`                  | SDK 下载目录（默认为系统缓存目录）                 |
-| `--ensure`                        | 已存在的头文件不重装                               |
-| `--dist-url=$url`                 | 从自定义 URL 下载头文件 tarball                    |
-| `--proxy=$url`                    | 下载时使用 HTTP(S) 代理                            |
-| `--noproxy=$urls`                 | 下载时忽略代理的 URL 列表                          |
-| `--cafile=$cafile`                | 覆盖默认 CA 链（用于下载 tarball）                 |
-| `--nodedir=$path`                 | 指定 Node 源码路径                                 |
-| `--python=$path`                  | 指定 Python 二进制路径                             |
+| 选项                              | 说明                                                                                         |
+| --------------------------------- | -------------------------------------------------------------------------------------------- |
+| `-v`, `--version`                 | 打印本包版本号                                                                               |
+| `-j n`, `--jobs n`                | 并行运行 `make`；`max` 表示使用所有 CPU 核心                                                 |
+| `--target=v6.2.1`                 | 目标 Node.js 版本（默认 `process.version`）                                                  |
+| `--silly`, `--loglevel=silly`     | 输出全部进度日志                                                                             |
+| `--verbose`, `--loglevel=verbose` | 输出大部分进度日志                                                                           |
+| `--silent`, `--loglevel=silent`   | 不输出任何日志                                                                               |
+| `debug`, `--debug`                | 生成 Debug 构建（默认 Release）                                                              |
+| `--release`, `--no-debug`         | 生成 Release 构建                                                                            |
+| `-C $dir`, `--directory=$dir`     | 在指定目录运行命令                                                                           |
+| `--make=$make`                    | 覆盖 `make` 命令（如 `gmake`）                                                               |
+| `--thin=yes`                      | 启用 thin 静态库                                                                             |
+| `--arch=$arch`                    | 目标架构（如 `ia32`）                                                                        |
+| `--tarball=$path`                 | 从本地 tarball 获取头文件                                                                    |
+| `--devdir=$path`                  | SDK 下载目录（默认为系统缓存目录）                                                           |
+| `--ensure`                        | 已存在的头文件不重装                                                                         |
+| `--dist-url=$url`                 | 从自定义 URL 下载头文件 tarball                                                              |
+| `--proxy=$url`                    | 下载时使用 HTTP(S) 代理                                                                      |
+| `--noproxy=$urls`                 | 下载时忽略代理的 URL 列表                                                                    |
+| `--cafile=$cafile`                | 覆盖默认 CA 链（用于下载 tarball）                                                           |
+| `--nodedir=$path`                 | 指定 Node 源码路径                                                                           |
+| `--python=$path`                  | 指定 Python 二进制路径                                                                       |
 | `--msvs_version=$version`         | 指定 Visual Studio 版本或安装路径（仅 Windows；可填 `2022` / `2026` 或 `C:\...\BuildTools`） |
-| `--solution=$solution`            | 指定 Visual Studio Solution 版本（仅 Windows）     |
-| `--force-process-config`          | 强制用运行时的 `process.config` 生成 `config.gypi` |
+| `--solution=$solution`            | 指定 Visual Studio Solution 版本（仅 Windows）                                               |
+| `--force-process-config`          | 强制用运行时的 `process.config` 生成 `config.gypi`                                           |
 
 ## 配置
 
