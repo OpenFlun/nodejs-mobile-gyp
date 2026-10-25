@@ -9,7 +9,7 @@ import * as log from '../lib/log.js';
 process.title = 'node-gyp';
 
 /**
- * 处理并执行选中的命令。
+ * 处理并执行选中的命令;
  */
 
 const prog = new Gyp(), homeDir = os.homedir();
@@ -31,7 +31,8 @@ if (prog.todo.length === 0) {
   process.exit(0);
 }
 
-log.info('it worked if it ends with', 'ok'), log.verbose('cli', process.argv), log.info('using', 'node-gyp@%s', prog.version);
+log.info('it worked if it ends with', 'ok'), log.verbose('cli', process.argv),
+    log.info('using', 'node-gyp@%s', prog.version);
 log.info('using', 'node@%s | %s | %s', process.versions.node, process.platform, process.arch);
 
 /**
@@ -71,7 +72,7 @@ const errorMessage = () => {
   run = async () => {
     const command = prog.todo.shift()
     if (!command) {
-      // 完成！
+      // 完成!
       completed = true, log.info('ok');
       return;
     };
@@ -92,10 +93,10 @@ const errorMessage = () => {
   };
 
 process.on('exit', code => {
-  if (!completed && !code) log.error('完成回调未被调用！'), issueMessage(), process.exit(6);
+  if (!completed && !code) log.error('完成回调未被调用!'), issueMessage(), process.exit(6);
 });
 process.on('uncaughtException', err => {
   log.error('未捕获的异常'), log.error('stack', err.stack), issueMessage(), process.exit(7);
 });
 
-run(); // 开始执行给定命令！
+run(); // 开始执行给定命令!

@@ -746,8 +746,8 @@ def _EscapeEnvironmentVariableExpansion(s):
 
   Escapes any % characters so that Windows-style environment variable
   expansions will leave them alone.
-  See http://connect.microsoft.com/VisualStudio/feedback/details/106127/cl-d-name-text-containing-percentage-characters-doesnt-compile
-  to understand why we have to do this.
+  原因见 Visual Studio 反馈 106127:
+  cl.exe 无法编译文件名含 % 字符的路径;
 
   Args:
       s: The string to be escaped.

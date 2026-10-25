@@ -1701,9 +1701,8 @@ def GetMacInfoPlist(product_dir, xcode_settings, gyp_path_to_build_path):
 def _GetXcodeEnv(
     xcode_settings, built_products_dir, srcroot, configuration, additional_settings=None
 ):
-    """Return the environment variables that Xcode would set. See
-  http://developer.apple.com/library/mac/#documentation/DeveloperTools/Reference/XcodeBuildSettingRef/1-Build_Setting_Reference/build_setting_ref.html#//apple_ref/doc/uid/TP40003931-CH3-SW153
-  for a full list.
+    """返回 Xcode 会设置的环境变量;
+  完整列表见 Xcode Build Setting Reference(TP40003931-CH3-SW153);
 
   Args:
       xcode_settings: An XcodeSettings object. If this is None, this function
@@ -1729,7 +1728,8 @@ def _GetXcodeEnv(
         "CONFIGURATION": configuration,
         "PRODUCT_NAME": xcode_settings.GetProductName(),
         # For FULL_PRODUCT_NAME see:
-        # /Developer/Platforms/MacOSX.platform/Developer/Library/Xcode/Specifications/MacOSX\ Product\ Types.xcspec  # noqa: E501
+        # /Developer/Platforms/MacOSX.platform/Developer/Library/Xcode/Specifications/
+        # MacOSX\ Product\ Types.xcspec  # noqa: E501
         "SRCROOT": srcroot,
         "SOURCE_ROOT": "${SRCROOT}",
         # This is not true for static libraries, but currently the env is only
