@@ -3,6 +3,7 @@
 import envPaths from 'env-paths';
 import os from 'os';
 import fs from 'fs';
+import chalk from 'chalk';
 import { Gyp } from '../lib/node-gyp.js';
 import * as log from '../lib/log.js';
 
@@ -26,8 +27,15 @@ else {
 }
 
 if (prog.todo.length === 0) {
+  const helpArgs = ['help', '-h', '--help'],
+    hasHelp = process.argv.some(a => helpArgs.includes(a)),
+    unknown = prog.argv.filter(a => !helpArgs.includes(a));
   if (~process.argv.indexOf('-v') || ~process.argv.indexOf('--version')) log.stdout('v%s', prog.version);
-  else log.stdout('%s', prog.usage());
+  else if (hasHelp || unknown.length === 0) log.stdout('%s', prog.usage());
+  else {
+    console.error(`${chalk.red('✗ 未知命令: ')}${chalk.yellow(unknown[0])}`), console.error(''), console.log(prog.usage());
+    process.exit(1);
+  }
   process.exit(0);
 }
 
