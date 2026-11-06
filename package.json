@@ -61,7 +61,10 @@
     "type": "git",
     "url": "git+https://github.com/OpenFlun/nodejs-mobile-gyp.git"
   },
-  "gitee": "https://gitee.com/OpenFlun/nodejs-mobile-gyp.git",
+  "gitee": {
+    "type": "git",
+    "url": "https://gitee.com/OpenFlun/nodejs-mobile-gyp.git"
+  },
   "bugs": {
     "url": "https://github.com/OpenFlun/nodejs-mobile-gyp/issues"
   },
