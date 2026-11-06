@@ -7,8 +7,7 @@ import chalk from 'chalk';
 import { Gyp } from '../lib/node-gyp.js';
 import * as log from '../lib/log.js';
 
-process.title = 'node-gyp';
-
+process.title = 'nodejs-mobile-gyp';
 /**
  * 处理并执行选中的命令;
  */
@@ -20,28 +19,25 @@ prog.parseArgv(process.argv), prog.devDir = prog.opts.devdir;
 if (prog.devDir) prog.devDir = prog.devDir.replace(/^~/, homeDir);
 else if (homeDir) prog.devDir = envPaths('node-gyp', { suffix: '' }).cache;
 else {
-  throw new Error(
-    "node-gyp requires that the user's home directory is specified " +
-    'in either of the environmental variables HOME or USERPROFILE. ' +
-    'Overide with: --devdir /path/to/.node-gyp');
+  throw new Error('nodejs-mobile-gyp 需要指定用户主目录,请设置环境变量 HOME 或 USERPROFILE;'
+    + '也可用 --devdir /path/to/.node-gyp 覆盖');
 }
 
 if (prog.todo.length === 0) {
-  const helpArgs = ['help', '-h', '--help'],
-    hasHelp = process.argv.some(a => helpArgs.includes(a)),
+  const helpArgs = ['help', '-h', '--help'], hasHelp = process.argv.some(a => helpArgs.includes(a)),
     unknown = prog.argv.filter(a => !helpArgs.includes(a));
   if (~process.argv.indexOf('-v') || ~process.argv.indexOf('--version')) log.stdout('v%s', prog.version);
   else if (hasHelp || unknown.length === 0) log.stdout('%s', prog.usage());
   else {
-    console.error(`${chalk.red('✗ 未知命令: ')}${chalk.yellow(unknown[0])}`), console.error(''), console.log(prog.usage());
-    process.exit(1);
+    console.error(`${chalk.red('✗ 未知命令: ')}${chalk.yellow(unknown[0])}`), console.error('');
+    console.log(prog.usage()), process.exit(1);
   }
   process.exit(0);
 }
 
-log.info('it worked if it ends with', 'ok'), log.verbose('cli', process.argv),
-    log.info('using', 'node-gyp@%s', prog.version);
-log.info('using', 'node@%s | %s | %s', process.versions.node, process.platform, process.arch);
+log.info('以 ok 结尾即执行成功', 'ok'), log.verbose('cli', process.argv);
+log.info('使用', 'nodejs-mobile-gyp@%s', prog.version);
+log.info('使用', 'node@%s | %s | %s', process.versions.node, process.platform, process.arch);
 
 /**
  * 如果传了 -C/--directory,切换到该目录;
@@ -50,11 +46,11 @@ const dir = prog.opts.directory;
 if (dir) {
   try {
     const stat = fs.statSync(dir);
-    if (stat.isDirectory()) log.info('chdir', dir), process.chdir(dir);
-    else log.warn('chdir', dir + ' 不是目录');
+    if (stat.isDirectory()) log.info('切换目录', dir), process.chdir(dir);
+    else log.warn('切换目录', dir + ' 不是目录');
   } catch (e) {
-    if (e.code === 'ENOENT') log.warn('chdir', dir + ' 不是目录');
-    else log.warn('chdir', 'chdir() 出错 "%s"', e.message);
+    if (e.code === 'ENOENT') log.warn('切换目录', dir + ' 不是目录');
+    else log.warn('切换目录', '切换目录失败 "%s"', e.message);
   }
 }
 
@@ -63,16 +59,18 @@ if (dir) {
  */
 const errorMessage = () => {
   // 复制自 npm 的 lib/utils/error-handler.js
-  log.error('System', os.type() + ' ' + os.release());
-  log.error('command', process.argv.map(JSON.stringify).join(' ')), log.error('cwd', process.cwd());
-  log.error('node -v', process.version), log.error('node-gyp -v', 'v' + prog.package.version);
+  log.error('系统', os.type() + ' ' + os.release());
+  log.error('命令', process.argv.map(JSON.stringify).join(' ')), log.error('工作目录', process.cwd());
+  log.error('node 版本', process.version), log.error('nodejs-mobile-gyp 版本', 'v' + prog.package.version);
 },
   /**
    * 打印最终诊断信息
    */
   issueMessage = () => {
     errorMessage();
-    log.error('', ['node-gyp 构建你的包失败!', '请尝试更新 npm 和/或 node-gyp;若仍无法解决,请向包作者反馈;'].join('\n'));
+    log.error('', [
+      'nodejs-mobile-gyp 构建你的包失败!', '请尝试更新 npm 和/或 nodejs-mobile-gyp;若仍无法解决,请向作者反馈;'
+    ].join('\n'));
   },
   /**
    * 依次执行队列中的命令
@@ -90,12 +88,12 @@ const errorMessage = () => {
 
       if (command.name === 'list') {
         if (args.length) args.forEach((version) => log.stdout(version));
-        else log.stdout('尚未安装任何 Node 开发文件;可用 `node-gyp install` 安装指定版本;')
+        else log.stdout('尚未安装任何 Node 开发文件;可用 `nodejs-mobile-gyp install` 安装指定版本;')
       }
       else if (args.length >= 1) log.stdout(...args.slice(1))
       return run(); // 继续执行队列中的下一条命令
     } catch (err) {
-      log.error(command.name + ' error'), log.error('stack', err.stack), errorMessage(), log.error('not ok');
+      log.error(command.name + ' 命令执行出错'), log.error('堆栈', err.stack), errorMessage(), log.error('not ok');
       return process.exit(1);
     }
   };
@@ -104,7 +102,7 @@ process.on('exit', code => {
   if (!completed && !code) log.error('完成回调未被调用!'), issueMessage(), process.exit(6);
 });
 process.on('uncaughtException', err => {
-  log.error('未捕获的异常'), log.error('stack', err.stack), issueMessage(), process.exit(7);
+  log.error('未捕获的异常'), log.error('堆栈', err.stack), issueMessage(), process.exit(7);
 });
 
 run(); // 开始执行给定命令!

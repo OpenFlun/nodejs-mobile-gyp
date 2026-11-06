@@ -3,7 +3,8 @@
 // See accompanying file LICENSE at https://github.com/node4good/windows-autoconf
 
 // Usage:
-// powershell -ExecutionPolicy Unrestricted -Command "Add-Type -Path Find-VisualStudio.cs; [VisualStudioConfiguration.Main]::PrintJson()"
+// powershell -ExecutionPolicy Unrestricted -Command "Add-Type -Path Find-VisualStudio.cs;
+// [VisualStudioConfiguration.Main]::PrintJson()"
 // This script needs to be compatible with PowerShell v2 to run on Windows 2008R2 and Windows 7.
 
 using System;

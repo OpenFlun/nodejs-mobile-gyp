@@ -10,10 +10,10 @@
 
 宿主平台支持 **Windows** / **macOS** / **Linux**,各平台所需的环境与工具见 [安装前准备](#安装前准备);
 
-[`@flun/nodejs-mobile-react-native`](https://www.npmjs.com/package/@flun/nodejs-mobile-react-native) 
+[`@flun/nodejs-mobile-react-native`](https://www.npmjs.com/package/@flun/nodejs-mobile-react-native)
 在构建时会自动调用本包,无需手动安装;
 
-本包是 [`nodejs-mobile-gyp`](https://github.com/nodejs-mobile/nodejs-mobile-gyp) 的 flun fork,后者又基于上游 
+本包是 [`nodejs-mobile-gyp`](https://github.com/nodejs-mobile/nodejs-mobile-gyp) 的 flun fork,后者又基于上游
 [`node-gyp`](https://github.com/nodejs/node-gyp);
 
 - GitHub:https://github.com/OpenFlun/nodejs-mobile-gyp
@@ -24,19 +24,19 @@
 
 #### 代码风格
 
-| 项       | 原版                    | 本 fork                                       |
-| -------- | ----------------------- | --------------------------------------------- |
+| 项       | 原版                    | 本 fork                                     |
+| -------- | ----------------------- | ------------------------------------------- |
 | 模块系统 | CommonJS                | **ESM**(`package.json` 的 `type: "module"`) |
-| 导出方式 | 文件内 `module.exports` | **末尾统一 `export { ... }`**                 |
+| 导出方式 | 文件内 `module.exports` | **末尾统一 `export { ... }`**               |
 | 函数声明 | `async function xxx`    | `const xxx = async () =>`(`class` 保留)     |
-| 注释     | 英文                    | 中文                                          |
+| 注释     | 英文                    | 中文                                        |
 
 #### 依赖升级
 
-| 包                  | 原版       | 本 fork   | 原因                                         |
-| ------------------- | ---------- | --------- | -------------------------------------------- |
+| 包                  | 原版       | 本 fork   | 原因                                        |
+| ------------------- | ---------- | --------- | ------------------------------------------- |
 | `tar`               | `^6.1.2`   | `^7.5.22` | 上游 v6 停更,有安全公告                     |
-| `glob`              | `^10.3.10` | `^13.0.6` | 上游 v10 停更                                |
+| `glob`              | `^10.3.10` | `^13.0.6` | 上游 v10 停更                               |
 | `make-fetch-happen` | `^13.0.0`  | `^16.0.1` | 连带升级 `cacache`,去掉 `tar@6` / `glob@10` |
 
 升级后依赖树干净,`npm audit` 0 vulnerabilities;
@@ -80,10 +80,6 @@
 │   └── util.js                   # 通用工具:execFile 包装、注册表读取、候选文件查找
 │
 ├── gyp/                          # 内置的 gyp 工具(Python)
-│   ├── gyp                       # Python 启动脚本(Unix)
-│   ├── gyp.bat                   # Python 启动脚本(Windows)
-│   ├── gyp_main.py               # gyp 主入口
-│   ├── LICENSE                   # gyp 自身的许可证
 │   ├── pylib/gyp/                # gyp 核心 Python 模块
 │   │   ├── input.py              # 解析 .gyp / .gypi 文件
 │   │   ├── common.py             # 通用工具
@@ -94,32 +90,35 @@
 │   │   ├── win_tool.py           # Windows 工具链
 │   │   └── generator/            # 各类生成器后端(make / msvs / ninja / xcode / cmake ...)
 │   ├── pylib/packaging/          # gyp 依赖的 Python packaging 库(vendored)
-│   └── data/win/
-│       └── large-pdb-shim.cc     # Windows 大 PDB 兼容编译单元
+│   ├── data/win/
+│   │   └── large-pdb-shim.cc     # Windows 大 PDB 兼容编译单元
+│   ├── gyp                       # Python 启动脚本(Unix)
+│   ├── gyp_main.py               # gyp 主入口
+│   ├── gyp.bat                   # Python 启动脚本(Windows)
+│   ├── pyproject.toml            # gyp 自身构建元数据(不随包发布)
+│   ├── README.md                 # gyp 上游说明(不随包发布)
+│   └── test_gyp.py               # gyp 自测脚本(不随包发布)
 │
 ├── src/
 │   └── win_delay_load_hook.cc    # Windows 加载延迟钩子(编译进每个原生模块)
 │
 ├── addon.gypi                    # 所有原生模块共用的 gyp 配置
-├── package.json                  # type: module,bin 命令名为 nodejs-mobile-gyp
-├── LICENSE                       # 本包许可证(ISC)
-├── README.md                     # 本文件
 ├── CHANGELOG.md                  # 版本变更记录
-├── .gitignore                    # Git 忽略规则
-├── .npmignore                    # npm 发布排除规则
-├── .gitattributes                # Git 换行符 / 二进制标记
-└── macOS_Catalina_acid_test.sh   # macOS Catalina 兼容性验证脚本(仅本地开发,不随包发布)
+├── README.md                     # 本文件
+├── LICENSE                       # 本包许可证(ISC)
+├── macOS_Catalina_acid_test.sh   # macOS Catalina 兼容性验证脚本(仅本地开发,不随包发布)
+└── package.json                  # type: module,bin 命令名为 nodejs-mobile-gyp
 ```
 
 ## 安装前准备
 
 本包面向 **Android / iOS 交叉编译**,宿主平台支持情况:
 
-| 宿主平台 | 目标:Android | 目标:iOS  |
-| -------- | ------------- | ---------- |
-| Windows  | 完整支持    | 需 macOS |
-| macOS    | 完整支持    | 完整支持 |
-| Linux    | 完整支持    | 需 macOS |
+| 宿主平台 | 目标:Android | 目标:iOS |
+| -------- | ------------ | -------- |
+| Windows  | 完整支持     | 需 macOS |
+| macOS    | 完整支持     | 完整支持 |
+| Linux    | 完整支持     | 需 macOS |
 
 各平台所需的构建环境如下;
 
@@ -142,28 +141,28 @@
   (`sh.exe`、`printf`、`xargs`、`sed`、`rm`、`mkdir` 等数十个命令),
   GNU make 执行 Makefile 所依赖的 Unix 命令均由它提供;位置自动探测(见下方)
 
-> **为什么需要 Git for Windows?** Android 原生模块通过 GNU make 构建,Makefile 中会调用 `printf`、`xargs`、`sed` 等 Unix 
-  命令;这些命令并非 Windows 自带,GNU make 需要一个 POSIX 环境来执行它们;Git for Windows 
-  自带**整套 MSYS2 POSIX 工具集**(`sh.exe`、`printf`、`xargs`、`sed`、`rm`、`mkdir` 等数十个命令),无需额外安装 MSYS2 或 
+> **为什么需要 Git for Windows?** Android 原生模块通过 GNU make 构建,Makefile 中会调用 `printf`、`xargs`、`sed` 等 Unix
+  命令;这些命令并非 Windows 自带,GNU make 需要一个 POSIX 环境来执行它们;Git for Windows
+  自带**整套 MSYS2 POSIX 工具集**(`sh.exe`、`printf`、`xargs`、`sed`、`rm`、`mkdir` 等数十个命令),无需额外安装 MSYS2 或
   Cygwin;
 
 ### macOS
 
-| 组件        | 要求                             |
-| ----------- | -------------------------------- |
-| Node.js     | 见 `engines.node`                |
-| Python      | 3.6+                             |
+| 组件        | 要求                          |
+| ----------- | ----------------------------- |
+| Node.js     | 见 `engines.node`             |
+| Python      | 3.6+                          |
 | Xcode       | 完整 Xcode(必须,CLT 单独不够) |
-| Android NDK | 仅构建 Android 目标时需 23–27     |
+| Android NDK | 仅构建 Android 目标时需 23–27 |
 
 ### Linux
 
-| 组件        | 要求                                                   |
-| ----------- | ------------------------------------------------------ |
-| Node.js     | 见 `engines.node`                                      |
-| Python      | 3.6+                                                   |
+| 组件        | 要求                                                 |
+| ----------- | ---------------------------------------------------- |
+| Node.js     | 见 `engines.node`                                    |
+| Python      | 3.6+                                                 |
 | 构建工具    | `make`、`g++`(`apt install build-essential python3`) |
-| Android NDK | 仅构建 Android 目标时需 23–27                           |
+| Android NDK | 仅构建 Android 目标时需 23–27                        |
 
 ### 自动探测(Windows)
 
@@ -184,10 +183,10 @@
   3. `PATH` 中的 `git.exe` 反推 `../usr/bin`
   4. 常见安装位置兜底
 
-- **Android NDK**:由 `@flun/nodejs-mobile-react-native` 通过 `android.ndkDirectory` 定位,并注入 `make.exe`、`clang` 
+- **Android NDK**:由 `@flun/nodejs-mobile-react-native` 通过 `android.ndkDirectory` 定位,并注入 `make.exe`、`clang`
   等工具路径;
 
-> 本包不依赖任何随包分发的硬编码配置文件;上述探测均为运行时动态完成;仅 Visual Studio 的"版本号 → 版本年份 → 
+> 本包不依赖任何随包分发的硬编码配置文件;上述探测均为运行时动态完成;仅 Visual Studio 的"版本号 → 版本年份 →
   toolset"对照表以常量形式内联在 `lib/find-visualstudio.js` 中--这类信息由微软固定发布,无枚举接口,且随 VS 版本发布而更新,
   不适合做成外部资源;
 
@@ -202,7 +201,7 @@ npm i @flun/nodejs-mobile-gyp
 
 [rn-pkg]: https://www.npmjs.com/package/@flun/nodejs-mobile-react-native
 
-> **Node 版本要求**:本 fork 的依赖链(`make-fetch-happen`、`nopt`、`proc-log`、`which` 等)已升级到较新版本,要求比原版 
+> **Node 版本要求**:本 fork 的依赖链(`make-fetch-happen`、`nopt`、`proc-log`、`which` 等)已升级到较新版本,要求比原版
   `nodejs-mobile-gyp` 更高的 Node;具体最低版本见 `package.json` 的 `engines.node` 字段;若你的项目仍在使用较旧的 Node,
   请改用原版 `nodejs-mobile-gyp`;
 
@@ -237,16 +236,16 @@ npx @flun/nodejs-mobile-gyp <command> [options]
 
 ### 命令
 
-| 命令 | 说明 |
-|---|---|
-| `help` | 显示帮助 |
-| `build` | 调用 `make` / `msbuild.exe` 编译原生模块 |
-| `clean` | 删除 `build` 目录(若存在) |
-| `configure` | 为当前平台生成工程构建文件 |
-| `rebuild` | 依次执行 `clean` → `configure` → `build` |
-| `install` | 为指定版本安装 Node.js 头文件 |
-| `list` | 列出已安装的 Node.js 头文件版本 |
-| `remove` | 删除指定版本的 Node.js 头文件 |
+| 命令        | 说明                                     |
+| ----------- | ---------------------------------------- |
+| `help`      | 显示帮助                                 |
+| `build`     | 调用 `make` / `msbuild.exe` 编译原生模块 |
+| `clean`     | 删除 `build` 目录(若存在)                |
+| `configure` | 为当前平台生成工程构建文件               |
+| `rebuild`   | 依次执行 `clean` → `configure` → `build` |
+| `install`   | 为指定版本安装 Node.js 头文件            |
+| `list`      | 列出已安装的 Node.js 头文件版本          |
+| `remove`    | 删除指定版本的 Node.js 头文件            |
 
 ### 参数
 
@@ -320,25 +319,25 @@ npm config set [--global] devdir /tmp/.gyp
 
 #### 1. 工具集与 LTO
 
-原版默认走 ClangCL 工具集,且继承 Node 官方二进制的 LTO 配置;Node.js 24+ 官方二进制由 ClangCL + ThinLTO 编译,其 
-`common.gypi` 会在 `clang==1` 时把 MSBuild 工具集设为 `ClangCL`,并在 `enable_lto==true` / `enable_thin_lto==true` 
+原版默认走 ClangCL 工具集,且继承 Node 官方二进制的 LTO 配置;Node.js 24+ 官方二进制由 ClangCL + ThinLTO 编译,其
+`common.gypi` 会在 `clang==1` 时把 MSBuild 工具集设为 `ClangCL`,并在 `enable_lto==true` / `enable_thin_lto==true`
 时向链接器传入 `-flto=thin`、`/opt:lldltojobs` 等 Clang 专用参数;若用户本机没装 ClangCL,或用的是传统 MSVC 工具链,会报:
 
 - `MSB8020: 无法找到 ClangCL 的生成工具`
 - `LNK1117: 选项"opt:lldltojobs=2"中的语法错误`
 
-本 fork 强制走 MSVC 工具集并关闭 LTO,避免上述报错;工具集版本从 `find-visualstudio` 的探测结果**动态获取**(`v140` / `v141` 
+本 fork 强制走 MSVC 工具集并关闭 LTO,避免上述报错;工具集版本从 `find-visualstudio` 的探测结果**动态获取**(`v140` / `v141`
 / `v142` / `v143` / `v145`...),不写死;
 
 #### 2. GNU make 的 POSIX 环境
 
-Android 原生模块通过 GNU make 构建,其 Makefile 会调用 `printf`、`xargs`、`sed` 等 Unix 命令;GNU make 需要一个 POSIX 
-shell(`sh.exe`)来执行它们;Windows 上若无,会直接报 `CreateProcess(NULL, printf ...) failed`;Git for Windows 自带整套 POSIX 
+Android 原生模块通过 GNU make 构建,其 Makefile 会调用 `printf`、`xargs`、`sed` 等 Unix 命令;GNU make 需要一个 POSIX
+shell(`sh.exe`)来执行它们;Windows 上若无,会直接报 `CreateProcess(NULL, printf ...) failed`;Git for Windows 自带整套 POSIX
 工具集;本 fork 会自动定位其 `usr/bin` 并前置到 PATH,详见 [安装前准备](#安装前准备) 的"自动探测(Windows)";
 
 #### 3. 路径分隔符
 
-gyp 生成的 Makefile 中,路径原本会带上 Windows 的反斜杠(如 `src\bufferutil.o`),导致 `sh` / `sed` / `make` 解析失败;本 fork 
+gyp 生成的 Makefile 中,路径原本会带上 Windows 的反斜杠(如 `src\bufferutil.o`),导致 `sh` / `sed` / `make` 解析失败;本 fork
 在 gyp 的路径生成环节统一转成正斜杠;该改动在非 Windows 平台上是 no-op;
 
 ### 具体改动清单
@@ -373,7 +372,7 @@ gyp 生成的 Makefile 中,路径原本会带上 Windows 的反斜杠(如 `src\b
 
 #### 兼容性与健壮性
 
-- **`proc-log` 新版本兼容**:新版把日志级别函数与 `pause` / `resume` 挂在默认导出的 `log` 对象下;本 fork 已按此调整 
+- **`proc-log` 新版本兼容**:新版把日志级别函数与 `pause` / `resume` 挂在默认导出的 `log` 对象下;本 fork 已按此调整
   `lib/log.js`,否则 `configure` 阶段会抛 `TypeError`;
 - **弃用 API 清理**:`lib/process-release.js` 不再用 `url.resolve()` / `url.parse()`,改用 WHATWG `URL`,消除 `DEP0169` 警告;
 - **依赖脚本放行**:`package.json` 显式声明 `allowScripts`,适配新版 npm 默认禁止依赖执行安装脚本的行为;
@@ -390,8 +389,8 @@ gyp 生成的 Makefile 中,路径原本会带上 Windows 的反斜杠(如 `src\b
    `import procLog from 'proc-log'`,再把需要的函数从 default 里解构后统一导出;
 
 4. **PowerShell 写文件会加 BOM**
-   `Set-Content -Encoding UTF8` 会写入 `\uFEFF`,导致 gyp 的 `eval()` 报 
-   `SyntaxError: invalid non-printable character U+FEFF`;写 `binding.gyp` 等交给 Python eval 的文件时,用 
+   `Set-Content -Encoding UTF8` 会写入 `\uFEFF`,导致 gyp 的 `eval()` 报
+   `SyntaxError: invalid non-printable character U+FEFF`;写 `binding.gyp` 等交给 Python eval 的文件时,用
    `[System.IO.File]::WriteAllText` + `New-Object System.Text.UTF8Encoding $false`;
 
 5. **ESM 不支持动态 `require('./' + command)`**
@@ -413,7 +412,7 @@ ISC
 ## 贡献
 
 - 源码:[GitHub](https://github.com/OpenFlun/nodejs-mobile-gyp)
-- 镜像:[gitee](https://gitee.com/OpenFlun/nodejs-mobile-gyp)
+- 中国镜像:[gitee](https://gitee.com/OpenFlun/nodejs-mobile-gyp)
 - 问题反馈:[Issues](https://github.com/OpenFlun/nodejs-mobile-gyp/issues)
 - 上游:`nodejs-mobile-gyp` 与 `node-gyp`
 
