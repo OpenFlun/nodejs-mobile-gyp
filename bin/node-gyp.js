@@ -1,27 +1,23 @@
 #!/usr/bin/env node
-
-import envPaths from 'env-paths';
-import os from 'os';
-import fs from 'fs';
 import chalk from 'chalk';
-import { Gyp } from '../lib/node-gyp.js';
+import envPaths from 'env-paths';
+import fs from 'fs';
+import os from 'os';
 import * as log from '../lib/log.js';
+import { Gyp } from '../lib/node-gyp.js';
 
 process.title = 'nodejs-mobile-gyp';
 /**
  * 处理并执行选中的命令;
  */
-
 const prog = new Gyp(), homeDir = os.homedir();
 let completed = false;
 prog.parseArgv(process.argv), prog.devDir = prog.opts.devdir;
 
 if (prog.devDir) prog.devDir = prog.devDir.replace(/^~/, homeDir);
 else if (homeDir) prog.devDir = envPaths('node-gyp', { suffix: '' }).cache;
-else {
-  throw new Error('nodejs-mobile-gyp 需要指定用户主目录,请设置环境变量 HOME 或 USERPROFILE;'
-    + '也可用 --devdir /path/to/.node-gyp 覆盖');
-}
+else throw new Error('nodejs-mobile-gyp 需要指定用户主目录,请设置环境变量 HOME 或 USERPROFILE;'
+  + '也可用 --devdir /path/to/.node-gyp 覆盖');
 
 if (prog.todo.length === 0) {
   const helpArgs = ['help', '-h', '--help'], hasHelp = process.argv.some(a => helpArgs.includes(a)),
