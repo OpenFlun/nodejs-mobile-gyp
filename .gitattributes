@@ -1,35 +1,62 @@
 # 默认:文本文件,仓库内统一 LF
 * text=auto eol=lf
-
 # 源码
 *.js    text eol=lf
 *.mjs   text eol=lf
 *.cjs   text eol=lf
 *.json  text eol=lf
 *.md    text eol=lf
-*.py    text eol=lf
-*.gyp   text eol=lf
-*.gypi  text eol=lf
-*.toml  text eol=lf
-
-# Unix shell 脚本:必须 LF,否则 Linux/macOS 执行报错
-*.sh    text eol=lf
-
+*.ts    text eol=lf
+*.tsx   text eol=lf
+# iOS / Xcode
+*.pbxproj      -text
+*.plist        text eol=lf
+*.podspec      text eol=lf
+*.xcconfig     text eol=lf
+*.modulemap    text eol=lf
+*.xcworkspacedata text eol=lf
+Podfile        text eol=lf
+Podfile.lock   text eol=lf
+# Android / Gradle
+*.gradle       text eol=lf
+*.properties   text eol=lf
+*.pro          text eol=lf
+*.cmake        text eol=lf
+CMakeLists.txt text eol=lf
+gradlew        text eol=lf
+*.java         text eol=lf
+*.kt           text eol=lf
+*.xml          text eol=lf
+# C / C++
+*.c    text eol=lf
+*.cc   text eol=lf
+*.cpp  text eol=lf
+*.h    text eol=lf
+*.hpp  text eol=lf
+# Unix shell 脚本:必须 LF
+*.sh   text eol=lf
 # Windows 专属脚本:CRLF
-*.bat   text eol=crlf
-*.cmd   text eol=crlf
-*.ps1   text eol=crlf
-
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+*.ps1  text eol=crlf
 # 二进制文件(不做换行符转换)
-*.so    binary
-*.a     binary
-*.o     binary
-*.node  binary
-*.dll   binary
-*.dylib binary
-*.exe   binary
-*.jar   binary
-*.zip   binary
-*.tgz   binary
-*.gz    binary
-*.tar   binary
+*.so       binary
+*.a        binary
+*.o        binary
+*.node     binary
+*.dll      binary
+*.dylib    binary
+*.exe      binary
+*.jar      binary
+*.zip      binary
+*.tgz      binary
+*.gz       binary
+*.tar      binary
+*.keystore binary
+*.jks      binary
+*.p12      binary
+*.mobileprovision binary
+*.framework binary
+*.xcframework binary
+# libnode 与 NodeMobile 资源目录整体视为二进制
+ios/libnode/**          binary
